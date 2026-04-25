@@ -1,12 +1,13 @@
 package io.github.winniesmasher.novamart;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -19,7 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = NovaMartApplication.class)
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ProductControllerTest {
 
     @Autowired
@@ -27,21 +27,7 @@ class ProductControllerTest {
 
     @Test
     void supportsProductCrudSearchAndLogicalDelete() throws Exception {
-        mockMvc.perform(post("/api/admin/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                  "name": "Lunar Notebook",
-                                  "description": "Notebook for space science field notes",
-                                  "priceCents": 1299,
-                                  "status": "ACTIVE",
-                                  "tagIds": []
-                                }
-                                """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.code").value("OK"))
-                .andExpect(jsonPath("$.data.name").value("Lunar Notebook"))
-                .andExpect(jsonPath("$.data.deleted").value(false));
+        long productId = createProduct("Lunar Notebook", "Notebook for space science field notes", "ACTIVE");
 
         mockMvc.perform(get("/api/products").param("keyword", "Lunar"))
                 .andExpect(status().isOk())
@@ -49,7 +35,7 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data.hasMore").value(false))
                 .andExpect(jsonPath("$.data.isEnd").value(true));
 
-        mockMvc.perform(delete("/api/admin/products/1"))
+        mockMvc.perform(delete("/api/admin/products/{id}", productId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value("OK"));
 
@@ -60,21 +46,23 @@ class ProductControllerTest {
 
     @Test
     void adminProductListIncludesDraftsAndCanExposeDeletedItems() throws Exception {
-        createProduct("Visible Lamp", "Active item for storefront", "ACTIVE");
-        createProduct("Draft Probe", "Back office draft item", "DRAFT");
-        createProduct("Archived Cable", "Deleted item for diagnosis", "ACTIVE");
+        createProduct("Visible Lamp", "review-marker active item for storefront", "ACTIVE");
+        createProduct("Draft Probe", "review-marker back office draft item", "DRAFT");
+        long archivedProductId = createProduct("Archived Cable", "review-marker deleted item for diagnosis", "ACTIVE");
 
-        mockMvc.perform(delete("/api/admin/products/3"))
+        mockMvc.perform(delete("/api/admin/products/{id}", archivedProductId))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/admin/products"))
+        mockMvc.perform(get("/api/admin/products").param("keyword", "review-marker"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items", hasSize(2)))
                 .andExpect(jsonPath("$.data.items[*].name", hasItem("Visible Lamp")))
                 .andExpect(jsonPath("$.data.items[*].name", hasItem("Draft Probe")))
                 .andExpect(jsonPath("$.data.items[*].name", not(hasItem("Archived Cable"))));
 
-        mockMvc.perform(get("/api/admin/products").param("includeDeleted", "true"))
+        mockMvc.perform(get("/api/admin/products")
+                        .param("keyword", "review-marker")
+                        .param("includeDeleted", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.items", hasSize(3)))
                 .andExpect(jsonPath("$.data.items[*].name", hasItem("Archived Cable")))
@@ -122,8 +110,8 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 
-    private void createProduct(String name, String description, String status) throws Exception {
-        mockMvc.perform(post("/api/admin/products")
+    private long createProduct(String name, String description, String status) throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/admin/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -134,6 +122,12 @@ class ProductControllerTest {
                                   "tagIds": []
                                 }
                                 """.formatted(name, description, status)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value("OK"))
+                .andExpect(jsonPath("$.data.name").value(name))
+                .andExpect(jsonPath("$.data.deleted").value(false))
+                .andReturn();
+        Number id = JsonPath.read(result.getResponse().getContentAsString(), "$.data.id");
+        return id.longValue();
     }
 }
