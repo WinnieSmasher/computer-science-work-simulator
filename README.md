@@ -27,10 +27,15 @@
 3. 运行现有 API 和测试。
 4. 每次只完成一个关卡，像工作迭代一样提交代码。
 
+## 工程 Playbooks
+
+- [调试与排障 playbook](docs/playbooks/debugging.md)：把“线上反馈一个 bug”拆成复现、观察、定位、修复和回归测试。
+
 ## 当前进度
 
 - Level 01-03 已有基础文档、商品/标签 API、MockMvc 测试。
-- Level 04-27 已有任务书，后续逐关补代码。
+- Level 04 已补充调试任务和排障 playbook。
+- Level 05-27 已有任务书，后续逐关补代码。
 
 ## 本地运行
 
@@ -63,4 +68,3 @@ curl "http://localhost:8080/api/products?keyword=Lunar&page=1&size=20"
 ## References
 
 见 `docs/references.md`。
-
