@@ -30,6 +30,7 @@
 ## 工程 Playbooks
 
 - [调试与排障 playbook](docs/playbooks/debugging.md)：把“线上反馈一个 bug”拆成复现、观察、定位、修复和回归测试。
+- [API 清单](docs/api.md)：记录当前已经实现的接口、用途和示例。
 
 ## 当前进度
 
@@ -64,6 +65,8 @@ curl -X POST http://localhost:8080/api/admin/products \
 
 curl "http://localhost:8080/api/products?keyword=Lunar&page=1&size=20"
 ```
+
+更多接口见 `docs/api.md`。
 
 ## References
 
