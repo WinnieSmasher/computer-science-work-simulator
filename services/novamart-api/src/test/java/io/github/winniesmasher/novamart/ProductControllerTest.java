@@ -81,6 +81,29 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data.items[*].deleted", hasItem(true)));
     }
 
+    @Test
+    void malformedProductRequestsUseSharedApiEnvelope() throws Exception {
+        mockMvc.perform(post("/api/admin/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Broken Probe",
+                                  "description": "Invalid enum should still use the API envelope",
+                                  "priceCents": 1299,
+                                  "status": "PUBLISHED",
+                                  "tagIds": []
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("REQUEST_BODY_INVALID"))
+                .andExpect(jsonPath("$.data").doesNotExist());
+
+        mockMvc.perform(get("/api/products").param("page", "not-a-number"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("REQUEST_PARAMETER_INVALID"))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
+
     private void createProduct(String name, String description, String status) throws Exception {
         mockMvc.perform(post("/api/admin/products")
                         .contentType(MediaType.APPLICATION_JSON)
