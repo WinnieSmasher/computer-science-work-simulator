@@ -30,6 +30,7 @@
 ## 工程 Playbooks
 
 - [调试与排障 playbook](docs/playbooks/debugging.md)：把“线上反馈一个 bug”拆成复现、观察、定位、修复和回归测试。
+- [后端代码自查清单](docs/backend-review-checklist.md)：每关提交前检查接口契约、校验、异常、测试和文档。
 - [API 清单](docs/api.md)：记录当前已经实现的接口、用途和示例。
 - [PDF 27 关映射](docs/pdf-27-gates.md)：说明 PDF 里的 27 个能力点如何变成本项目的后端工作关卡。
 
