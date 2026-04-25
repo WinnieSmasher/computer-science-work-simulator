@@ -1,0 +1,30 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: novamart-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: novamart
+      MYSQL_DATABASE: novamart
+      MYSQL_USER: novamart
+      MYSQL_PASSWORD: novamart
+    ports:
+      - "3306:3306"
+    volumes:
+      - novamart-mysql:/var/lib/mysql
+
+  redis:
+    image: redis:7.4
+    container_name: novamart-redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: novamart-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  novamart-mysql:
+
