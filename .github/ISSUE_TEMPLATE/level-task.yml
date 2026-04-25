@@ -1,0 +1,39 @@
+name: Level task
+description: Track one simulator level or one realistic work item.
+title: "level-XX: "
+labels:
+  - level-task
+body:
+  - type: input
+    id: level
+    attributes:
+      label: Level
+      description: Which level is this for?
+      placeholder: "Level 04"
+    validations:
+      required: true
+  - type: textarea
+    id: business-context
+    attributes:
+      label: Business context
+      description: Describe the request as if it came from a real team.
+      placeholder: "Operations reports that product search misses draft diagnosis cases..."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance checklist
+      description: What must be true before this work is considered done?
+      value: |
+        - [ ] Feature or doc behavior is implemented
+        - [ ] Tests or review checklist are included
+        - [ ] README or level docs are updated if needed
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Commands, screenshots, curl examples, or review steps.
+      placeholder: ".\\mvnw.cmd test"
