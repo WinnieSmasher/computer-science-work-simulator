@@ -104,6 +104,24 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.data").doesNotExist());
     }
 
+    @Test
+    void rejectsNullTagIdsBeforeBusinessLogic() throws Exception {
+        mockMvc.perform(post("/api/admin/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "Null Tag Product",
+                                  "description": "Null tag id should fail validation before repository access",
+                                  "priceCents": 1299,
+                                  "status": "ACTIVE",
+                                  "tagIds": [null]
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.data").doesNotExist());
+    }
+
     private void createProduct(String name, String description, String status) throws Exception {
         mockMvc.perform(post("/api/admin/products")
                         .contentType(MediaType.APPLICATION_JSON)
