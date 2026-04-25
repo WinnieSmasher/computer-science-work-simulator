@@ -35,6 +35,16 @@ public class ProductController {
         return ApiResponse.ok(service.get(id));
     }
 
+    @GetMapping("/api/admin/products")
+    public ApiResponse<PageResult<ProductResponse>> adminSearch(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "false") boolean includeDeleted,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ApiResponse.ok(service.adminSearch(keyword, includeDeleted, page, size));
+    }
+
     @PutMapping("/api/admin/products/{id}")
     public ApiResponse<ProductResponse> update(@PathVariable long id, @Valid @RequestBody ProductCreateRequest request) {
         return ApiResponse.ok(service.update(id, request));
@@ -55,4 +65,3 @@ public class ProductController {
         return ApiResponse.ok(service.search(keyword, page, size));
     }
 }
-
